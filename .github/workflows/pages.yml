@@ -1,0 +1,51 @@
+name: Pages
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch databases
+        run: |
+          mkdir -p docs/data
+          curl -sSL -o docs/data/ip2x.bin \
+            https://github.com/tn3w/IP2X/releases/latest/download/geo.bin
+          curl -sSL -o docs/data/genom.bin \
+            https://github.com/tn3w/genom/releases/latest/download/geo.bin
+          curl -sSL -o docs/data/intel.bin \
+            https://github.com/tn3w/IPBlocklist/releases/latest/download/intel.bin
+          curl -sSL -o docs/data/asndb.bin \
+            https://github.com/tn3w/ASNDB/releases/latest/download/asndb-tiny.bin
+          ls -lh docs/data
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

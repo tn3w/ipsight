@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ipsight</title>
+<meta name="description" content="IP enrichment with geo, threat, ASN. Offline-first, runs in your browser.">
+<link rel="preconnect" href="https://cartodb-basemaps-a.global.ssl.fastly.net">
+<link rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin="">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a id="top"></a>
+<header class="nav">
+  <a href="#top" class="logo">ipsight<span class="dot"></span></a>
+  <nav>
+    <a href="#top">Lookup</a>
+    <a href="#about">About</a>
+    <a href="https://github.com/tn3w/ipsight" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Where, who, what risk.</h1>
+    <p class="lede">
+      Reverse-geocode any IPv4 or IPv6. Identify the owning ASN.
+      Score it against twenty threat signals. All in your browser, no API.
+    </p>
+
+    <form id="ip-form" class="search-shell" autocomplete="off">
+      <input id="ip-input" type="text" placeholder="8.8.8.8  ·  2606:4700::1111  ·  AS13335"
+        spellcheck="false" autocapitalize="off">
+      <button type="submit" id="go">Resolve</button>
+    </form>
+
+    <div class="hero-meta">
+      <button class="chip" data-suggest="1.1.1.1">1.1.1.1</button>
+      <button class="chip" data-suggest="8.8.8.8">8.8.8.8</button>
+      <button class="chip" data-suggest="2606:4700::1111">2606:4700::1111</button>
+      <button class="chip" data-suggest="AS13335">AS13335</button>
+      <button class="chip" data-suggest="my">my ip</button>
+    </div>
+
+    <div id="boot" class="boot">
+      <div class="boot-row" data-key="asndb"><span>asndb</span><b>idle</b></div>
+      <div class="boot-row" data-key="ip2x"><span>ip2x</span><b>idle</b></div>
+      <div class="boot-row" data-key="genom"><span>genom</span><b>idle</b></div>
+      <div class="boot-row" data-key="intel"><span>intel</span><b>idle</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="browse">
+  <div class="browse-inner">
+    <h2>Try one</h2>
+    <p class="browse-sub">A curated tour through the world's networks.</p>
+    <div class="browse-grid">
+      <button class="tile" data-q="1.1.1.1">
+        <span class="tile-kind">DNS</span>
+        <b>Cloudflare</b>
+        <code>1.1.1.1</code>
+      </button>
+      <button class="tile" data-q="8.8.8.8">
+        <span class="tile-kind">DNS</span>
+        <b>Google</b>
+        <code>8.8.8.8</code>
+      </button>
+      <button class="tile" data-q="9.9.9.9">
+        <span class="tile-kind">DNS</span>
+        <b>Quad9</b>
+        <code>9.9.9.9</code>
+      </button>
+      <button class="tile" data-q="208.67.222.222">
+        <span class="tile-kind">DNS</span>
+        <b>OpenDNS</b>
+        <code>208.67.222.222</code>
+      </button>
+      <button class="tile" data-q="185.220.101.1">
+        <span class="tile-kind">Tor</span>
+        <b>Exit relay</b>
+        <code>185.220.101.1</code>
+      </button>
+      <button class="tile" data-q="171.25.193.20">
+        <span class="tile-kind">Tor</span>
+        <b>DFRI exit</b>
+        <code>171.25.193.20</code>
+      </button>
+      <button class="tile" data-q="13.107.42.14">
+        <span class="tile-kind">Cloud</span>
+        <b>Microsoft</b>
+        <code>13.107.42.14</code>
+      </button>
+      <button class="tile" data-q="142.250.80.46">
+        <span class="tile-kind">Cloud</span>
+        <b>Google edge</b>
+        <code>142.250.80.46</code>
+      </button>
+      <button class="tile" data-q="2606:4700::1111">
+        <span class="tile-kind">IPv6</span>
+        <b>Cloudflare</b>
+        <code>2606:4700::1111</code>
+      </button>
+      <button class="tile" data-q="2001:4860:4860::8888">
+        <span class="tile-kind">IPv6</span>
+        <b>Google</b>
+        <code>2001:4860:4860::8888</code>
+      </button>
+      <button class="tile" data-q="AS13335">
+        <span class="tile-kind">ASN</span>
+        <b>Cloudflare</b>
+        <code>AS13335</code>
+      </button>
+      <button class="tile" data-q="AS32934">
+        <span class="tile-kind">ASN</span>
+        <b>Meta</b>
+        <code>AS32934</code>
+      </button>
+      <button class="tile" data-q="AS16509">
+        <span class="tile-kind">ASN</span>
+        <b>Amazon</b>
+        <code>AS16509</code>
+      </button>
+      <button class="tile" data-q="AS24940">
+        <span class="tile-kind">ASN</span>
+        <b>Hetzner</b>
+        <code>AS24940</code>
+      </button>
+      <button class="tile" data-q="AS14061">
+        <span class="tile-kind">ASN</span>
+        <b>DigitalOcean</b>
+        <code>AS14061</code>
+      </button>
+      <button class="tile" data-q="AS396982">
+        <span class="tile-kind">ASN</span>
+        <b>Google Cloud</b>
+        <code>AS396982</code>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section id="lookup" class="result" hidden>
+  <div class="result-grid">
+    <div class="card map-card">
+      <div class="card-head">
+        <span class="card-kicker">Location</span>
+        <span class="card-time" id="lookup-time"></span>
+      </div>
+      <div id="map"></div>
+      <div id="place" class="kv"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-kicker">Network</span>
+      </div>
+      <div id="asn" class="kv"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-kicker">Threat</span>
+        <span id="verdict" class="verdict"></span>
+      </div>
+      <div id="intel-summary" class="kv"></div>
+      <div id="intel-flags" class="flags"></div>
+      <details>
+        <summary>Matched ranges</summary>
+        <div id="intel-matches" class="matches"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="card-kicker">Tools</span>
+      </div>
+      <div class="tools">
+        <a id="link-bgp" target="_blank" rel="noopener">BGP.tools ↗</a>
+        <a id="link-shodan" target="_blank" rel="noopener">Shodan ↗</a>
+        <a id="link-abuse" target="_blank" rel="noopener">AbuseIPDB ↗</a>
+        <a id="link-rdap" target="_blank" rel="noopener">RDAP ↗</a>
+        <a id="link-osm" target="_blank" rel="noopener">OpenStreetMap ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="search" class="search-page" hidden>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-kicker">ASN</span>
+      <span id="asn-query" class="card-time"></span>
+    </div>
+    <div id="asn-result" class="kv"></div>
+  </div>
+</section>
+
+<section id="about" class="about">
+  <div class="about-inner">
+    <h2>How it works</h2>
+    <div class="about-grid">
+      <div>
+        <h3>Four databases</h3>
+        <p>
+          IP2X maps IP → coordinate. Genom maps coordinate → place.
+          ASNDB tiny maps IP → owning ASN. IPBlocklist maps IP → threat signals.
+          Each is a single binary blob, parsed in-memory.
+        </p>
+      </div>
+      <div>
+        <h3>Browser-native</h3>
+        <p>
+          The Rust crate runs server-side. This page is a faithful port to
+          ES modules and <code>DataView</code>. No network calls per lookup.
+          The same logic, the same answers.
+        </p>
+      </div>
+      <div>
+        <h3>Offline after load</h3>
+        <p>
+          ~100 MB of binaries stream in once. Subsequent lookups are
+          microseconds. The DBs refresh daily on the Pages build.
+        </p>
+      </div>
+    </div>
+    <div class="links">
+      <a href="https://github.com/tn3w/ipsight" target="_blank" rel="noopener">ipsight</a>
+      <a href="https://github.com/tn3w/IP2X" target="_blank" rel="noopener">IP2X</a>
+      <a href="https://github.com/tn3w/genom" target="_blank" rel="noopener">genom</a>
+      <a href="https://github.com/tn3w/IPBlocklist" target="_blank" rel="noopener">IPBlocklist</a>
+      <a href="https://github.com/tn3w/ASNDB" target="_blank" rel="noopener">ASNDB</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>ipsight · Apache-2.0</span>
+  <span>basemap © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM</a></span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
