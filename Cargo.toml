@@ -1,0 +1,21 @@
+[package]
+name = "ipsight"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "IP → geo enrichment. Hot-swapping, self-updating databases."
+license = "Apache-2.0"
+
+[dependencies]
+anyhow = "1"
+arc-swap = "1"
+chrono = "0.4"
+chrono-tz = "0.10"
+dirs = "5"
+httpdate = "1"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2"] }
+tokio = { version = "1", features = ["rt", "fs", "time", "macros"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
