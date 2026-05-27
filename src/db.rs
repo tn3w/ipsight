@@ -6,7 +6,7 @@
 //! instance; readers see the old version until the swap completes.
 
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::time::{Duration, SystemTime};
 
 use anyhow::{Context, Result};
@@ -15,6 +15,11 @@ use reqwest::header::IF_MODIFIED_SINCE;
 use tokio::{fs, time::sleep};
 
 const UPDATE_INTERVAL: Duration = Duration::from_secs(24 * 3600);
+
+fn http_client() -> &'static reqwest::Client {
+    static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+    CLIENT.get_or_init(reqwest::Client::new)
+}
 
 /// A binary database loadable from raw bytes and fetched from a stable URL.
 pub trait Database: Sized + Send + Sync + 'static {
@@ -89,7 +94,7 @@ async fn fetch<T: Database>(
     path: &Path,
     if_modified_since: Option<SystemTime>,
 ) -> Result<Option<Box<[u8]>>> {
-    let mut request = reqwest::Client::new().get(T::URL);
+    let mut request = http_client().get(T::URL);
     if let Some(time) = if_modified_since {
         request = request.header(IF_MODIFIED_SINCE, httpdate::fmt_http_date(time));
     }
